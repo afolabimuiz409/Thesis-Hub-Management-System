@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Supervisor Dashboard{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>
+                Welcome,
+                {{ supervisor.user.get_username }} 👋
+            </h2>
+            <p class="text-muted mb-0">
+                Supervisor Dashboard
+            </p>
+        </div>
+        <span class="badge bg-success fs-6">
+            Approved Supervisor
+        </span>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white shadow border-0">
+                <div class="card-body text-center">
+                    <h6>Total Topics</h6>
+                    <h2 class="fw-bold">
+                        {{ total_topics }}
+                    </h2>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white shadow border-0">
+                <div class="card-body text-center">
+                    <h6>Pending</h6>
+                    <h2 class="fw-bold">
+                        {{ pending_topics }}
+                    </h2>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white shadow border-0">
+                <div class="card-body text-center">
+                    <h6>Approved</h6>
+                    <h2 class="fw-bold">
+                        {{ approved_topics }}
+                    </h2>
+                    
+                </div>
+            </div>
+        </div>
+
+       <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white shadow border-0">
+                <div class="card-body text-center">
+                    <h6>Rejected</h6>
+                    <h2 class="fw-bold">
+                        {{ rejected_topics }}
+                    </h2>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+
+    <div class="card shadow border-0 mb-4">
+        <div class="card-body">
+            <form method="GET">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                          <input
+                             type="text"
+                             name="search"
+                             class="form-control"
+                             placeholder="Search by topics, student name or matric number..."
+                             value="{{ search }}">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <select name="status"
+                        class="form-select">
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="Pending"
+                        {% if status == "Pending" %}selected{% endif %}>
+                            Pending
+                        </option>
+
+                        <option value="Approved"
+                        {% if status == "Approved" %}selected{% endif %}>
+                            Approved
+                        </option>
+
+                        <option value="Rejected"
+                        {% if status == "Rejected" %}selected{% endif %}>
+                            Rejected
+                        </option>
+                    </select>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <button type="submit"
+                        class="btn btn-primary w-100">
+                        Search
+                    </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                Student Thesis Topics
+            </h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if topics %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student</th>
+                        <th>Matric Number</th>
+                        <th>Topic</th>
+                        <th>Status</th>
+                        <th>Date Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for topic in topics %}
+                    <tr>
+                        <td>
+                            <strong>
+                                {{ topic.student.get_full_name }}
+                            </strong>
+                            
+                        </td>
+
+                        <td>
+                            {{ topic.student.matric_number }}
+                            
+                        </td>
+
+                        <td>
+                            {{ topic.title }}
+                            
+                        </td>
+
+                        <td>
+                            {% if topic.status == "Pending" %}
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+                        {% elif topic.status == "Approved" %}
+                        <span class="badge bg-success">
+                                Approved
+                            </span>
+                        
+                        {% else %}
+
+                        <span class="badge bg-danger">
+                                Rejected
+                            </span>
+                            {% endif %}
+                            
+                        </td>
+
+                        <td>
+                            {{ topic.submitted_at|date:"M d, Y" }}
+                            
+                        </td>
+
+                        <td>
+
+                            <a 
+                            href="{% url 'supervisor_topic_detail' topic.id %}"
+                            class="btn btn-info btn-sm text-white">
+                            View
+                        </a>
+                        
+                       
+                            
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+         {% if page_obj.paginator.num_page > 1 %}
+         <nav class="mt-4 mb-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                 {% if page_obj.has_previous %}
+                 <li class="page-item">
+
+                    <a class="page-link" href="{{ page_obj.previous_page_number }}&search={{ search }}&status={{ status }}">
+                        Previous
+                    </a>
+                 </li>
+                 {% endif %}
+
+                 <!-- Page Number -->
+                  {% for num in page_obj.paginator.page_range %}
+
+                  <li class="page-item 
+                  {% if page_obj.number == num %} 
+                      active 
+                  {% endif %}">
+                    <a class="page-link" href="?page={{ num }}&search={{ search }}&status={{ status }}">
+                        {{ num }}
+                    </a>
+                  </li>
+                  {% endfor %}
+
+                  <!-- Next -->
+
+                   {% if page_obj.has_next %}
+                 <li class="page-item">
+
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}&status={{ status }}">
+                        Next
+                    </a>
+                 </li>
+                {% endif %}
+
+                  
+            </ul>
+         </nav>
+         {% endif %}
+
+
+        {% else %}
+        <div class="text-center py-5">
+            <h5>
+                No Thesis Topics Found
+            </h5>
+            <p class="text-muted">
+                There are currently no thesis topics matching your search.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+</div>
+
+{% endblock  %}

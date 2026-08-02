@@ -1,0 +1,11 @@
+The Twitter Data Breach: Personal Impact and Solutions
+
+In 2022, criminal hackers leaked the email addresses and phone numbers of 220 million Twitter users (CyberNews, 2023). My personal opinion is that breaches like this are not just "big tech problems": they directly affect ordinary people like me, especially those of us who work online.
+
+The effects on my personal life would be immediate and serious. First, my email could be used for phishing attacks; second, it could be linked to my other accounts and sold on the dark web; and third, it increases the risk of targeted scams. As a web developer and tutor, my clients trust me with sensitive information. If my email was part of a breach, someone could impersonate me and damage my reputation. That’s scary!
+
+What can we learn from this situation? The main lesson is that "data minimization" matters. Twitter collected emails for 2FA, but did not properly secure the API endpoint that hackers exploited. This shows that even large companies can have a single point of failure. We also learn that users must treat public platforms as partially public — never reuse passwords.
+
+To problem-solve and prevent issues like this in the future, I would recommend a three-part approach. First, technical: companies must implement rate-limiting on APIs and conduct regular penetration testing. Second, user-level: everyone should enable 2FA using an authenticator app, not just SMS, and use a password manager to create unique passwords. Third, policy-level: governments need stronger data-protection laws with real penalties for leaks.
+
+In conclusion, a 220-million user breach proves that cybersecurity is everyone’s job. I will protect myself by monitoring "Have I Been Pwned," and as a future tutor, I will teach students that good security is not optional — it is the foundation of trust online

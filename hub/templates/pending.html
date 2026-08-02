@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Approval{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow border-0">
+                <div class="card-body text-center p-5">
+
+                    <i class="fa fa-hourglass text-warning display-1"></i>
+
+                    <h2 class="mt-4 fw-bold">
+                        Account Pending Approval
+                    </h2>
+
+                    <p class="lead text-muted mt-3">
+                        Thanks for registering with <strong>Thesis Hub</strong>
+                    </p>
+
+                    <p class="text-muted">
+                        Your account has been created successfully, but it is currently awaiting approval by the system administrator.
+                    </p>
+
+                    <div class="alert alert-warning mt-4">
+                        <strong>What happens next?</strong><br>
+                        An administrator will review your registration. Once your account is approved, you can log in and begin submitting your thesis topics.
+                    </div>
+
+                    <a href="{% url 'home_page' %}" class="btn btn-primary mt-3">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock  %}
+
+{% for message in messages %}
+        <input type="hidden" id="get_message" value="{{message}}">
+        <script>
+            var get_message = document.getElementById("get_message").value;
+            alert(get_message);
+        </script>
+        {% endfor %}

@@ -1,0 +1,40 @@
+JAVASCRIPT FOR SHOW PASSWORD
+
+onclick=" show_password()"
+password id = 'get_password"
+icon id = 'get_eye'
+
+function show_password() {
+
+     const get_password = document.getElementById("get_password");
+     const get_eye = document.getElementById("get_eye");
+     
+     if(get_password.type === 'password'){
+          get_password.type = 'test';
+          get_eye.classList.replace("fa_eye_slash", "fa_eye");
+} else {
+     
+       get_password.type = 'password';
+       get_eye.classList.replace("fa_eye", "fa_eye_slash")
+
+}
+
+
+
+JAVASCRIPT TO CONFIRM PASSWORD IF IS TALLY
+
+$(document).ready(function() {
+    $("check_password").click(function() {
+         
+        const get_password = document.getElementById('get_password').value;
+        const get_confirm_password = document.getElementById('get_confirm_password').value;
+
+        if(get_password !== get_confirm_password) {
+             alert('password does not match')
+             return false;
+} else {
+
+      return True;
+}
+});
+});

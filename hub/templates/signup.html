@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title%}Student Registration | Thesis Hub{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="card form-card">
+
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+
+                        <i class="fa fa-user text-primary display-4"></i>
+
+                        <h2 class="fw-bold mt-3">
+                            Student Registration
+                        </h2>
+
+                        <p class="text-muted">
+                            Create your Thesis Hub account.
+                        </p>
+                    </div>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                        {% endif %}
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                {{ form.first_name}}
+                                <small class="text-danger">{{ form.first_name.errors }}</small>
+                            </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                {{ form.last_name}}
+                                <small class="text-danger">{{ form.last_name.errors }}</small>
+                            </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Username</label>
+                                {{ form.username}}
+                                <small class="text-danger">{{ form.username.errors }}</small>
+                            </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Email Address</label>
+                                {{ form.email}}
+                                <small class="text-danger">{{ form.email.errors }}</small>
+                            </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Department</label>
+                                {{ form.department }}
+                                <small class="text-danger">{{ form.department.errors }}</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Matric No</label>
+                                {{ form.matric_number }}
+                                <small class="text-danger">{{ form.matric_number.errors }}</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone No</label>
+                                {{ form.phone_number }}
+                                <small class="text-danger">{{ form.phone_number.errors }}</small>
+                            </div>
+
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Faculty</label>
+                                {{ form.faculty }}
+                                <small class="text-danger">{{ form.faculty.errors }}</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Level</label>
+                                {{ form.level }}
+                                <small class="text-danger">{{ form.level.errors }}</small>
+                            </div>
+
+
+                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Password</label>
+                                {{ form.password1 }}
+                                <small class="text-danger">{{ form.password1.errors }}</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Confirm Password</label>
+                                {{ form.password2 }}
+                                <small class="text-danger">{{ form.password2.errors }}</small>
+                            </div>
+
+                        </div>
+
+                        <div class="d-grid">
+
+                            <button class="btn btn-primary btn-lg">
+                                <i class="fa fa-user"></i>
+                                Register
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+
+                    <div class="text-center">
+
+                        Already have an account?
+
+                        <a href="{% url 'login' %}" class="fw-bold text-decoration-none">
+                            Login Here
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% for message in messages %}
+        <input type="hidden" id="get_message" value="{{message}}">
+        <script>
+            var get_message = document.getElementById("get_message").value;
+            alert(get_message);
+        </script>
+        {% endfor %}
+
+
+    

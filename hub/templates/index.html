@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home | Thesis Hub{% endblock%}
+
+{% block content %}
+
+{% comment %} Hero Section {% endcomment %}
+<section class="hero">
+    <div class="container">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-6">
+
+                <span class="badge bg-primary mb-3 fs-6">
+                    Final Year Research Project
+                </span>
+
+                <h1 class="display-4 fw-bold mb-4">
+                    Manage Your Thesis Journey with Ease
+                </h1>
+
+                <p class="lead mb-4">
+                    Thesis Hub is a centralized platform that enables student to submit thesis topics, supervisors to review research, and administrators to manage the entire approval process.
+                </p>
+
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-4">
+                    <i class="fa fa-fa-arrow-circle-o-right"></i>
+                    Login
+                </a>
+            </div>
+
+            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+
+                <img style="border-radius: 50px;" src="{% static 'images/img1.png' %}" class="img-fluid" alt="Thesis Hub">
+            </div>
+        </div>
+    </div>
+</section>
+
+{% comment %} Feature {% endcomment %}
+<section class="py-5 bg-white">
+
+    <div class="container">
+
+        <h2 class="section-title text-center">
+            Why Choose Thesis Hub?
+        </h2>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100 p-4 text-center">
+                    <i class="fa fa-pencil-square display-4 text-primary mb-3"></i>
+
+                    <h4>Submit Topics</h4>
+
+                    <p>
+                        Student can easily submit thesis topics for approval.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100 p-4 text-center">
+
+                    <i class="fa fa-spinner display-4 text-danger mb-3"></i>
+
+                    <h4>Track Progress</h4>
+
+                    <p>
+                        Monitor approval status and thesis progress from one dashboard.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% comment %} Statistics {% endcomment %}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <h1 class="text-primary fw-bold">100+</h1>
+
+                <p>Students</p>
+            </div>
+
+            <div class="col-md-3">
+                <h1 class="text-primary fw-bold">50+</h1>
+
+                <p>Supervisors</p>
+            </div>
+
+            <div class="col-md-3">
+                <h1 class="text-primary fw-bold">200+</h1>
+
+                <p>Projects</p>
+            </div>
+
+            <div class="col-md-3">
+                <h1 class="text-primary fw-bold">30+</h1>
+
+                <p>Departments</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% comment %} CTA {% endcomment %}
+
+<section class="py-5 bg-primary text-white">
+
+    <div class="container text-center">
+
+        <h2 class="mb-3">
+            Ready to Begin Your Research Journey?
+        </h2>
+
+        <p class="mb-4">
+            Ready today and submit your thesis proposal after your account has been approved.
+        </p>
+
+        <a href="{% url 'signup' %}" class="btn btn-warning btn-lg">
+            Register Now
+        </a>
+    </div>
+</section>
+
+{% endblock %}

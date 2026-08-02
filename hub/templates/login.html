@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Thesis Hub{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-5">
+
+            <div class="card form-card">
+                <div class="card-body py-5">
+
+                    <div class="text-center mb-4">
+
+                        <i class="fa fa-user display-3 text-primary"></i>
+                        <h2 class="fw-bold mt-3">
+                            Welcome Back
+                        </h2>
+
+                        <p class="text-muted">
+                            Sign in to continue.
+                        </p>
+                    </div>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Username
+                            </label>
+
+                            <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                Password
+                            </label>
+
+                            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                        </div>
+
+                        <div class="d-grid">
+
+                            <button class="btn btn-primary btn-lg">
+
+                                <i class="fa fa-fa-arrow-right"></i>
+                                Login
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+                    <div class="text-center">
+                        Don't have an account?
+
+                        <a href="{% url 'signup' %}">
+                            Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock  %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Topic Details{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+
+            <h4 class="mb-0">
+                Thesis Topic Details
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <table class="table">
+                <tr>
+                    <th width="220">Title</th>
+                    <td>{{ topic.title }}</td>
+                </tr>
+
+                <tr>
+                    <th>Research Area</th>
+                    <td>
+                        {{ topic.research_area|default:"Not Selected"}}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Description</th>
+                    <td>{{ topic.description }}</td>
+                </tr>
+
+                <tr>
+                    <th>Proposal</th>
+                    <td>
+                        {% if topic.proposal %}
+                        <a href="{{ topic.proposal.url }}"
+                        class="btn btn-sm btn-primary"
+                        target="_blank">
+                        View Proposal
+                    </a>
+
+                    {% else %}
+                        <span class="text-muted">
+                            No proposal uploaded
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                
+
+                <tr>
+                    <th>Status</th>
+                    <td>
+                        {% if topic.status == "Pending" %}
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+
+                        {% elif topic.status == "Approved" %}
+                            <span class="badge bg-success">
+                                Approved
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-danger">
+                                Rejected
+                            </span>
+                            {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Supervisor</th>
+
+                    <td>
+                        {% if topic.supervisor %}
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+
+                                    <h5 class="fw-bold">
+                                        Assigned Supervisor
+                                    </h5>
+
+                                    <p class="mb-1">
+                                        <strong>Name:</strong>
+                                        {{ topic.supervisor.user.get_full_name }}
+                                    </p>
+
+                                    <p class="mb-1">
+                                        <strong>Email:</strong>
+                                        {{ topic.supervisor.user.email }}
+                                    </p>
+
+                                    <p class="mb-1">
+                                        <strong>Office:</strong>
+                                        {{ topic.supervisor.office }}
+                                    </p>
+
+                                    <p class="mb-0">
+                                        <strong>Phone:</strong>
+                                        {{ topic.supervisor.phone_number }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% else %}
+                             <div class="alert alert-secondary">
+                                A supervisor has not been assigned to this topic yet.
+                             </div>
+
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Date Submitted</th>
+
+                    <td>
+                        {{ topic.submitted_at }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card-footer">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                Back
+            </a>
+
+            {% if topic.status == "Pending" %}
+
+            <a href="{% url 'edit_topic' topic.id %}" class="btn btn-warning">
+                Edit
+            </a>
+
+            <a href="{% url 'delete_topic' topic.id %}" class="btn btn-danger">
+                Delete
+            </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock  %}

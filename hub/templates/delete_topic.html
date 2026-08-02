@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Topic{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="card shadow border-danger">
+
+        <div class="card-header bg-danger text-white">
+            <h4>Delete Thesis Topic</h4>
+        </div>
+        
+        <div class="card-body">
+
+            <h5>
+                Are you sure you want to delete this topic?
+            </h5>
+
+            <hr>
+
+            <p>
+                <strong>{{ topic.title }}</strong>
+            </p>
+
+            <form method="POST">
+
+                {% csrf_token %}
+                <button class="btn btn-danger">
+                    Yes, Delete
+
+                </button>
+
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock  %}

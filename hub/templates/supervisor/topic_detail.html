@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Thesis Topic Details{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">
+                Thesis Topic Details
+            </h2>
+
+            <p class="text-muted mb-0">
+                Review and manage student's thesis topic
+            </p>
+        </div>
+
+        <a href="{% url 'supervisor_dashboard' %}"
+        class="btn btn-secondary">
+         ← Back to Dashboard
+    </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        Thesis Infoemation
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <h3 class="fw-bold mb-3">
+                        {{ topic.title }}
+                    </h3>
+                    <hr>
+
+                    <h6 class="fw-bold">
+                        Description
+                    </h6>
+
+                    <p class="text-muted">
+                        {{ topic.description }}
+                    </p>
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Status</strong>
+
+                            <div class="mt-2">
+                                {% if topic.status == "Pending" %}
+
+                                <span class="badge bg-warning text-dark fs-6">
+                                    Pending
+                                </span>
+
+                                {% elif topic.status == "Approved" %}
+
+                                <span class="badge bg-success fs-6">
+                                    Approved
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger fs-6">
+                                    Rejected
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>Date Submitted</strong>
+
+                            <p class="text-muted mt-2">
+                                {{ topic.submitted_at|date:"F d, Y, h:i A" }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Student Information -->
+
+        <div class="col-lg-4 mb-4">
+
+            <div class="card shadow border-0">
+                <div class="card-header bg-dark text-white">
+
+                    <h5 class="mb-0">
+                        Student Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="fw-bold">
+                        {{ topic.student.get_full_name }}
+                    </h5>
+
+                    <p class="text-muted">
+                        @{{ topic.student.username}}
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <strong>Matric Number:</strong>
+                        {{ topic.student.matric_number }}
+                    </p>
+
+                    <p>
+                        <strong>Faculty:</strong>
+                        {{ topic.student.faculty }}
+                    </p>
+
+                    <p>
+                        <strong>Department:</strong>
+                        {{ topic.student.department }}
+                    </p>
+
+                    <p>
+                        <strong>Level:</strong>
+                        {{ topic.student.get_level_display }}
+                    </p>
+
+                    <p>
+                        <strong>Email:</strong>
+                        {{ topic.student.email }}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+<!-- Supervisor Information -->
+
+<div class="card shadow border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            Supervisor Management
+        </h5>
+    </div>
+
+    <div class="card-body">
+        {% if topic.supervisor %}
+
+        <div class="alert alert-success">
+            <strong>Supervisor Assigned:</strong>
+
+            {{ topic.supervisor.get_full_name }}
+        </div>
+        {% else %}
+
+        <div class="alert alert-warning">
+
+            No supervisor has been assigned to this thesis topic yet.
+        </div>
+
+        {% endif %}
+
+        {% if topic.status == "Pending" %}
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <!-- Assign Supervisor -->
+
+             {% if not topic.supervisor %}
+            <form method="POST"
+                  action="{% url 'assign_supervisor' topic.id %}">
+
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary">
+                👨‍🏫 Assign Me
+            </button>
+
+            </form>
+
+                {% endif %}
+
+
+                <!-- Approve Topic -->
+
+           <form method="POST"
+                  action="{% url 'approve_topic' topic.id %}">
+
+                  {% csrf_token %}
+
+                  <button type="submit" class="btn btn-success">
+                ✅ Approve Topic
+            </button>
+
+            </form>
+
+            <!-- Reject Topic -->
+
+            <form method="POST"
+                  action="{% url 'reject_topic' topic.id %}">
+
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">
+                 ❌ Reject Topic
+            </button>
+
+            </form>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info mb-0">
+            This topic has already been reviewed.
+
+            {% if topic.status == "Approved" %}
+                The topic has been approved.
+            {% else %}
+                 The topic has been rejected.
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </div>
+
+</div>
+
+</div>
+
+{% endblock  %}

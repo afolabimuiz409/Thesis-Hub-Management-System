@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Thesis Topic{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h3 class="mb-0">
+                        Submit Thesis Topic
+                    </h3>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <p class="text-muted mb-4">
+                        Complete the form below to submit your proposed thesis topic for review. Your supervisor will evaluate your proposal after submission.
+                    </p>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                             
+                             <div class="alert alert-danger">
+                                Please correct the errors below.
+                             </div>
+                             {% endif %}
+
+                             <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Thesis Title
+                                </label>
+
+                                {{ form.title }}
+
+                                {% if form.title.errors %}
+                                    <small class="text-danger">
+                                        {{ form.title.errors|join:", "}}
+                                    </small>
+                                    {% endif %}
+                             </div>
+
+                              <div class="mb-3">
+
+                                <label class="form-label">Research Area</label>
+                                {{ form.research_area }}
+                                {% if form.researc_area.errors %}
+
+                                 <div class="text-danger">
+                                    {{ form.research_area.errors}}
+                                 </div>
+                                 {% endif %}
+                              </div>
+
+                             <div class="mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Thesis Description
+                                </label>
+
+                                {{ form.description }}
+
+                                {% if form.description.errors %}
+                                    <small class="text-danger">
+                                        {{ form.description.errors|join:", "}}
+                                    </small>
+                                    {% endif %}
+                             </div>
+
+                             <div class="mb-3">
+                                <label class="form-label">
+                                    Proposal (PDF)
+                                </label>
+
+                                {{ form.proposal }}
+
+                                <small class="text-muted">
+                                    Upload your proposal in PDF format.
+                                </small>
+
+                             </div>
+
+                             <div class="d-flex justify-content-between">
+                                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                                    ← Back to Dashboard
+                                </a>
+
+                                <button type="submit" class="btn btn-primary">
+                                    Submit Topic
+                                </button>
+                             </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock  %}

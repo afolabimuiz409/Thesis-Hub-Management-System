@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock  %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- Header-->
+     <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                Welcome Back, {{ student.first_name}} 👋
+            </h2>
+            <p class="text-muted mb-0">
+                Thesis Hub Student Dashboard
+            </p>
+        </div>
+
+        <a href="{% url 'submit_topic' %}" class="btn btn-primary">+ Submit Topic</a>
+     </div>
+
+     <div class="row">
+        <!-- PROFILE CARD -->
+         <div class="col-lg-4 mb-4">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body text-center">
+
+                    <img src="https://ui-avatars.com/api/?name={{ student.first_name }}+{{ student.last_name }}&background=0d6efd&color=fff&size=120" class="rounded-circle mb-3">
+
+                    <h4 class="fw-bold">
+                        {{ student.get_full_name }}
+                    </h4>
+
+                    <p class="text-muted">
+                        @{{ student.username }}
+                    </p>
+
+                    <hr>
+
+                    <table class="table table-borderless">
+
+                        <tr>
+                            <th>Matric No</th>
+                            <td>{{ student.matric_number }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Faculty</th>
+                            <td>{{ student.faculty }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Department</th>
+                            <td>{{ student.department }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Level</th>
+                            <td>{{ student.get_level_display }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ student.email }}</td>
+                        </tr>
+
+
+
+                    </table>
+
+                    <span class="badge bg-success fs-6">
+                        Approved Student
+                    </span>
+
+
+                </div>
+            </div>
+         </div>
+
+
+         <div class="col-lg-8">
+
+            <!-- Statistics -->
+
+            <div class="row">
+
+                <div class="col-md-3 mb-3">
+
+                    <div class="card bg-primary text-white shadow border-0">
+
+                        <div class="card-body text-center">
+                            <h6>Total Topics</h6>
+
+                            <h2 class="fw-bold">
+                                {{ total_topics }}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning shadow border-0">
+                        <div class="card-body text-center">
+
+                            <h6>Pending</h6>
+
+                            <h2 class="fw-bold">
+                                {{ pending_topics }}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success shadow border-0">
+                        <div class="card-body text-center">
+
+                            <h6>Approved</h6>
+
+                            <h2 class="fw-bold">
+                                {{ approved_topics }}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-danger shadow border-0">
+                        <div class="card-body text-center">
+
+                            <h6>Rejected</h6>
+
+                            <h2 class="fw-bold">
+                                {{ rejected_topics }}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Quick Action -->
+             <div class="card shadow border-0 mb-4">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Quick Actions
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+
+                            <a href="{% url 'submit_topic' %}" class="btn btn-primary w-100">Submit Topic</a>
+                        </div>
+
+                        <div class="col-md-4 mb-2">
+
+                            <a href="#" class="btn btn-btn-outline-secondary w-100">My Profile</a>
+                        </div>
+
+                        <div class="col-md-4 mb-2">
+
+                            <a href="#" class="btn btn-btn-outline-success w-100">My Topics</a>
+                        </div>
+
+
+                    </div>
+                </div>
+             </div>
+
+
+         </div>
+
+
+     </div>
+
+     <div class="card shadow border-0 mb-4">
+        <div class="card-body">
+            <form method="GET">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <input
+                        type="text"
+                        name="search"
+                        value="{{ search }}"
+                        class="form-control"
+                        placeholder="Search thesis title...">
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <select 
+                        name="status"
+                        class="form-select">
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="Pending"
+                        {% if status == "Pending" %}selected{% endif %}>
+                            Pending
+                        </option>
+
+                        <option value="Approved"
+                        {% if status == "Approved" %}selected{% endif %}>
+                            Approved
+                        </option>
+
+                        <option value="Rejected"
+                        {% if status == "Rejected" %}selected{% endif %}>
+                            Rejected
+                        </option>
+                    </select>
+                    </div>
+                    
+                    <div class="col-md-2 mb-2">
+
+                        <button class="btn btn-primary w-100">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+     </div>
+
+     <!-- RECENT TOPICS -->
+
+     <div class="card shadow border-0 mt-3">
+
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                Recent Thesis Topics
+            </h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            {% if topics %}
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Supervisor</th>
+                            <th>Date Submitted</th>
+                            <th width="220">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for topic in topics %}
+
+                        <tr>
+                            <td>
+                                <strong>{{ topic.title }}</strong>
+                            </td>
+
+                            <td>
+                                {% if topic.status == "Pending" %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+
+                                {% elif topic.status == "Approved" %}
+                                <span class="badge bg-success ">Approved</span>
+
+                                {% else %}
+                                <span class="badge bg-danger ">Rejected</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if topic.supervisor %}
+                                      {{ topic.supervisor.user.get_full_name }}
+
+                                    {% else %}
+                                         <span class="text-muted">
+                                            Not Assigned
+                                         </span>
+                                         {% endif %}
+                            </td>
+
+                            <td>
+
+                                {{ topic.submitted_at|date:"M d, Y" }}
+                            </td>
+
+                            <td>
+                                <a href="{% url 'topic_detail' topic.id %}" class="btn btn-sm btn-info text-white">View</a>
+
+                                {% if topic.status == "Pending" %}
+
+                                <a href="{% url 'edit_topic' topic.id %}" class="btn btn-sm btn-warning">Edit</a>
+
+                                <a href="{% url 'delete_topic' topic.id %}" class="btn btn-sm btn-danger">Delete</a>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="mt-4">
+
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&status={{ status }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+
+                        <a class="page-link"
+                         href="?page={{ num }}&search={{ search }}&status={{ status }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+
+                    <li class="page-item">
+                        <a class="page-link" 
+                        href="?page={{ page_obj.next_page_number }}&search={{ search }}&status={{ status }}">
+                            Next
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            {% else %}
+            <div class="text-center py-5">
+
+                <h5>No Thesis Topic Submitted Yet</h5>
+
+                <p class="text-muted">
+                    Click the button below to submit your first thesis topic.
+                </p>
+
+                <a href="{% url 'submit_topic' %}" class="btn btn-primary">Submit Thesis Topic</a>
+            </div>
+            {% endif %}
+        </div>
+     </div>
+
+
+   
+    </div>
+
+{% endblock  %}
