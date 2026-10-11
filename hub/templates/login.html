@@ -42,6 +42,16 @@
                             </label>
 
                             <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                            
+                            <div class="text-end mb-3">
+                                <a 
+                                   href="{% url 'password_reset' %}"
+                                   class="text-decoration-none small">
+                                   Forgot your password?
+                                </a>
+                            </div>
+                            
+                            
                         </div>
 
                         <div class="d-grid">

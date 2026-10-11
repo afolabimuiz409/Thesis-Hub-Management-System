@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Notifications | Thesis Hub{% endblock  %}
+{% block content %}
+
+<div class="container py-5">
+    <!-- Header -->
+     <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                🔔Notifications
+            </h2>
+
+            <p class="text-muted mb-0">
+                Stay update on your thesis activities.
+            </p>
+        </div>
+        {% if notifications %}
+              <a href="{% url 'mark_all_notifications_read' %}"
+                 class="btn btn-outline-primary">
+                 <i class="fa fa-check-circle-o"></i>
+                 Mark All as Read
+                </a>
+                {% endif %}
+     </div>
+
+     <!-- Notifications -->
+      <div class="card shadow border-0">
+        <div class="card-body p-0">
+            {% if notifications %}
+               {% for notification in notifications %}
+
+                   <div class="notification-item p-4
+                    {% if not notification.is_read %}
+                        bg-light
+                    {% endif %}">
+
+                    <div class="d-flex align-items-start">
+                        <!-- Icon -->
+                         <div class="me-3">
+                            {% if "Approved" in notification.title %}
+                               <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                                <i class="fa fa-check"></i>
+                               </div>
+
+                            {% elif "Rejected" in notification.title %}
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                                <i class="fa fa-times"></i>
+                            </div>
+
+                            {% elif "Supervisor" in notification.title %}
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                                <i class="fa fa-user"></i>
+                            </div>
+
+                            {% else %} 
+                            <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                                <i class="fa fa-bell"></i>
+                            </div>
+                            {% endif %}
+                         </div>
+
+                         <!-- Content -->
+                          <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="fw-bold mb-1">
+                                    {{ notification.title }}
+                                    
+                                    {% if not notification.is_read %}
+                                        <span class="badge bg-primary ms-2">
+                                            New
+                                        </span>
+                                        {% endif %}
+
+                                </h5>
+
+                                <small class="text-muted">
+                                    {{ notification.created_at|date:"M d, Y h:i A" }}
+                                </small>
+                            </div>
+
+                            <p class="text-muted mb-3">
+                                {{ notification.message }}
+                            </p>
+
+                            {% if not notification.is_read %}
+
+                                 <a href="{% url 'mark_notification_read' notification.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="fa fa-check"></i>
+                                    Mark as Read
+                                 </a>
+                                {% else %}
+                                     <span class="text-success small">
+                                        <i class="fa fa-check-circle"></i>
+                                        Read
+                                     </span>
+                                     {% endif %}
+
+                          </div>
+                    </div>
+                       
+                   </div>
+
+                   {% if not forloop.last %}
+                        <hr class="m-0">
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                  <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fa fa-bell-slash fa-4x text-muted"></i>
+                    </div>
+
+                    <h5 class="fw-bold">
+                        No Notifications
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        You don't have any notifications yet.
+                    </p>
+                  </div>
+                  {% endif %}
+        </div>
+      </div>
+</div>
+
+{% endblock  %}

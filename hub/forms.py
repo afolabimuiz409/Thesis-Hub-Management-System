@@ -77,4 +77,29 @@ class ThesisTopicForm(forms.ModelForm):
         self.fields["proposal"].widget.attrs.update({
             "class": "form-control"
         })
+
+
+
+
+class SupervisorReviewForm(forms.ModelForm):
+    class Meta:
+        model = ThesisTopic
+        fields = ["supervisor_feedback"]
+        widgets = {
+            "supervisor_feedback": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 6,
+                "placeholder": "Enter your feedback or reason for rejecting this thesis topic..."
+            }),
+        }
+
+    def clean_supervisor_feedback(self):
+        feedback = self.cleaned_data.get("supervisor_feedback", "").strip()
+
+        if not feedback:
+            raise forms.ValidationError(
+                "Please provide a reason or feedback before rejecting this topic."
+            )
+
+        return feedback
         

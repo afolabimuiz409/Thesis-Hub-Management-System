@@ -8,8 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import ThesisTopic, Supervisor
+from .utils import create_notification
+from .models import ThesisReview
 
 from .decorators import supervisor_required
+from .forms import SupervisorReviewForm
     
     
 
@@ -167,6 +170,26 @@ def submit_topic(request):
             topic.student = request.user
             topic.save()
 
+            # Notify supervisor
+
+            supervisors = Supervisor.objects.filter(
+                user__is_active=True,
+                user__is_approved=True,
+                user__is_supervisor=True,
+            )
+
+            for supervisor in supervisors:
+                create_notification(
+                    recipient=supervisor.user,
+                    title="New Thesis Topic Submitted",
+                    message=(
+                        f"{request.user.get_full_name() or request.user.username} "
+                        f"has submitted a new thesis topic: "
+                        f"\"{topic.title}\"."
+                    ),
+                    topic=topic
+                )
+
             messages.success(
                 request,
                 "Your thesis topic has been submitted successfully."
@@ -213,17 +236,19 @@ def edit_topic(request, pk):
     topic = get_object_or_404(
         ThesisTopic,
         pk=pk,
-        student=request.user,
+        student=request.user
     )
 
-    if topic.status != "Pending":
-        messages.error(
+    # Approved topics cannot be edited
+    if topic.status == "Approved":
+        messages.warning(
             request,
-            "Only pending topics can be edited."
+            "Approved thesis topics cannot be edited."
         )
-        return redirect("dashboard")
+        return redirect("topic_detail", pk=topic.id)
 
     if request.method == "POST":
+
         form = ThesisTopicForm(
             request.POST,
             request.FILES,
@@ -231,14 +256,46 @@ def edit_topic(request, pk):
         )
 
         if form.is_valid():
-            form.save()
+
+            topic = form.save(commit=False)
+
+            # Resubmit the topic for supervisor review
+            topic.status = "Pending"
+
+            # Clear the previous rejection feedback
+            topic.supervisor_feedback = ""
+
+            topic.save()
+
+            # Notify supervisor about the resubmission
+            supervisors = Supervisor.objects.filter(
+                user__is_active=True,
+                user__is_approved=True,
+                user__is_supervisor=True,
+            )
+
+            for supervisor in supervisors:
+
+                create_notification(
+                    recipient=supervisor.user,
+                    title="Thesis Topic Resubmitted",
+                    message=(
+                        f'{request.user.get_full_name() or request.user.username} '
+                        f'has resubmitted the thesis topic "{topic.title}" '
+                        f'for review.'
+                    ),
+                    topic=topic
+                )
 
             messages.success(
                 request,
-                "Topic updated successfully."
+                "Your thesis topic has been updated and resubmitted for review."
             )
 
-            return redirect("dashboard")
+            return redirect(
+                "topic_detail",
+                pk=topic.id
+            )
 
     else:
         form = ThesisTopicForm(instance=topic)
@@ -249,8 +306,15 @@ def edit_topic(request, pk):
         {
             "form": form,
             "topic": topic,
-        },
+        }
     )
+
+        
+    
+
+   
+    
+
 
 
 @login_required    
@@ -418,46 +482,60 @@ def supervisor_dashboard(request):
     )
 
 
+
 @login_required
+@supervisor_required
 def approve_topic(request, topic_id):
+    supervisor = get_object_or_404(
+        Supervisor,
+        user=request.user
+    )
 
-    try:
-        supervisor = Supervisor.objects.get(
-            user=request.user
-        )
-
-    except Supervisor.DoesNotExist:
-        messages.error(
-            request,
-            "Supervisor profile not found."
-        )
-        return redirect("dashboard")
-    
     topic = get_object_or_404(
         ThesisTopic,
         id=topic_id
     )
 
     if topic.status != "Pending":
-
         messages.warning(
             request,
             "This thesis topic has already been reviewed."
         )
 
         return redirect(
-            "topic_detail",
+            "supervisor_topic_detail",
             topic_id=topic.id
         )
-    
-    topic.supervisor = supervisor.user
 
+    # Assign the current supervisor
+    topic.supervisor = supervisor
+
+    # Approve topic
     topic.status = "Approved"
 
-    # Clear any previous rejection reason
+    # Remove any previous rejection information
     topic.rejection_reason = ""
+    topic.supervisor_feedback = ""
 
     topic.save()
+
+    # Save review history
+    ThesisReview.objects.create(
+        topic=topic,
+        supervisor=supervisor,
+        decision="Approved",
+        feedback=""
+    )
+
+    create_notification(
+        recipient=topic.student,
+        title="Thesis Topic Approved",
+        message=(
+            f"Your thesis topic \"{topic.title}\" has been approved "
+            f"by {supervisor.user.get_full_name() or supervisor.user.username}."
+        ),
+        topic=topic
+    )
 
     messages.success(
         request,
@@ -465,112 +543,135 @@ def approve_topic(request, topic_id):
     )
 
     return redirect(
-        "topic_detail",
+        "supervisor_topic_detail",
         topic_id=topic.id
     )
 
 
-
-login_required
+@login_required
+@supervisor_required
 def reject_topic(request, topic_id):
+    supervisor = get_object_or_404(
+        Supervisor,
+        user=request.user
+    )
 
-    try:
-        supervisor = Supervisor.objects.get(
-            user=request.user
-        )
-    except Supervisor.DoesNotExist:
-        messages.error(
-            request,
-            "Supervisor profile not found."
-        )
-        return redirect("dashboard")
-    
     topic = get_object_or_404(
         ThesisTopic,
         id=topic_id
     )
 
     if topic.status != "Pending":
-
         messages.warning(
             request,
             "This thesis topic has already been reviewed."
         )
 
         return redirect(
-            "topic_detail",
+            "supervisor_topic_detail",
             topic_id=topic.id
         )
-    
-    # Only process POST requests
+
     if request.method == "POST":
 
-        rejection_reason = request.POST.get(
-            "rejection_reason",
-            ""
-        ).strip()
+        form = SupervisorReviewForm(request.POST)
 
-        # Require a rejection reason
+        if form.is_valid():
 
-        if not rejection_reason:
+            feedback = form.cleaned_data["supervisor_feedback"]
 
-            messages.error(
+            # Assign supervisor
+            topic.supervisor = supervisor
+
+            # Reject topic
+            topic.status = "Rejected"
+
+            # IMPORTANT:
+            # Save feedback in supervisor_feedback
+            topic.supervisor_feedback = feedback
+
+            # Also keep rejection_reason for compatibility
+            topic.rejection_reason = feedback
+
+            topic.save()
+
+            # Save review history
+            ThesisReview.objects.create(
+                topic=topic,
+                supervisor=supervisor,
+                decision="Rejected",
+                feedback=feedback
+            )
+
+            create_notification(
+                recipient= topic.student,
+                title="Thesis Topic Rejected",
+                message=(
+                    f'Your thesis topic "{topic.title}" has been rejected '
+                    f'by {supervisor.user.get_full_name() or supervisor.user.username}. '
+                    f'Feedback: {feedback}'
+                ),
+                topic=topic
+            )
+
+            messages.success(
                 request,
-                "Please provide a reason for rejecting this topic."
+                "Thesis topic rejected successfully."
             )
 
             return redirect(
-                "topic_detail",
+                "supervisor_topic_detail",
                 topic_id=topic.id
             )
-        
-        topic.supervisor = supervisor.user
 
-        topic.status = "Rejected"
+    else:
+        form = SupervisorReviewForm()
 
-        topic.rejection_reason = rejection_reason
-
-        topic.save()
-
-        messages.success(
-            request,
-            "Thesis topic rejected successfully."
-        )
-
-        return redirect(
-            "topic_detail",
-            topic_id=topic.id
-        )
-
-
+    return render(
+        request,
+        "supervisor/reject_topic.html",
+        {
+            "topic": topic,
+            "supervisor": supervisor,
+            "form": form,
+        }
+    )
 
 
 @login_required
 @supervisor_required
 def supervisor_topic_detail(request, topic_id):
+
     topic = get_object_or_404(
         ThesisTopic.objects.select_related(
             "student",
             "supervisor",
         ),
-        id=topic_id,
+        id=topic_id
     )
+    
+    # Get all review history for this topic
+    review_history = topic.reviews.select_related(
+        "supervisor",
+        "supervisor__user",
+    ).order_by("-reviewed_at")
 
     return render(
         request,
         "supervisor/topic_detail.html",
         {
             "topic": topic,
-        },
+            "review_history": review_history,
+        }
     )
-
 
 
 @login_required
 @supervisor_required
 def assign_supervisor(request, topic_id):
 
-    supervisor = Supervisor.objects.get(
+    supervisor = get_object_or_404(
+        Supervisor,
         user=request.user
     )
 
@@ -582,6 +683,18 @@ def assign_supervisor(request, topic_id):
     topic.supervisor = supervisor
     topic.save()
 
+    # Notify student
+    create_notification(
+        recipient=topic.student,
+        title="Supervisor Assigned",
+        message=(
+            f"{supervisor.user.get_full_name() or supervisor.user.username} "
+            f"has been assigned as the supervisor for your thesis topic "
+            f"\"{topic.title}\"."
+        ),
+        topic=topic
+    )
+
     messages.success(
         request,
         "You have been assigned as the supervisor for this topic."
@@ -592,79 +705,55 @@ def assign_supervisor(request, topic_id):
         topic_id=topic.id
     )
 
-    return redirect("supervisor_dashboard")
-
-
-
 
 @login_required
-@supervisor_required
-def approve_topic(request, topic_id):
+def notification_list(request):
+    notifications = request.user.notifications.all()
+    return render(
+        request,
+        "notifications/list.html",
+        {
+            "notifications": notifications,
+        }
+    )
 
-    if request.method == "POST":
+@login_required
+def mark_notification_read(request, notification_id):
+    notification = get_object_or_404(
+        request.user.notifications,
+        id=notification_id
+    )
 
-        supervisor = Supervisor.objects.get(
-            user=request.user
-        )
+    notification.is_read = True
+    notification.save()
 
-        topic = get_object_or_404(
-            ThesisTopic,
-            id=topic_id
-        )
-
-        topic.status = "Approved"
-
-        if not topic.supervisor:
-            topic.supervisor = supervisor
-
-            topic.save()
-
-            messages.success(
-                request,
-                "Thesis topic has been approved successfully."
-            )
-
+    if notification.topic:
+        if request.user.is_supervisor:
             return redirect(
                 "supervisor_topic_detail",
-                topic_id=topic.id
+                topic_id=notification.topic.id
             )
-
-        return redirect("supervisor_dashboard")
-
+        return redirect(
+            "topic_detail",
+            pk=notification.topic.id
+        )
+    return redirect("notification_list")
 
 
 
 @login_required
-@supervisor_required
-def reject_topic(request, topic_id):
+def mark_all_notifications_read(request):
 
-    if request.method == "POST":
+    request.user.notifications.filter(
+        is_read=False
+    ).update(
+        is_read=True
+    )
 
-        supervisor = Supervisor.objects.get(
-            user=request.user
-        )
+    messages.success(
+        request,
+        "All notifications marked as read."
+    )
+    return redirect("notification_list")
 
-        topic = get_object_or_404(
-            ThesisTopic,
-            id=topic_id
-        )
 
-        topic.status = "Rejected"
-
-        # Assign the Supervisor profile
-        if not topic.supervisor:
-            topic.supervisor = supervisor
-
-        topic.save()
-
-        messages.success(
-            request,
-            "Thesis topic has been rejected."
-        )
-
-        return redirect(
-            "supervisor_topic_detail",
-            topic_id=topic.id
-        )
-
-    return redirect("supervisor_dashboard")
